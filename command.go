@@ -7,11 +7,7 @@ import (
 )
 
 type state struct {
-<<<<<<< HEAD
-	ptr	*config.Config
-=======
 	cfg	*config.Config
->>>>>>> 5cafcae (CH1-L3: Commands)
 }
 
 type command struct {
@@ -36,19 +32,6 @@ func (c *commands) register(name string, f func(*state, command) error) {
 }
 
 func handlerLogin(s *state, cmd command) error {
-<<<<<<< HEAD
-	if len(cmd.args) == 0 {
-		return fmt.Errorf("expect a single argument, none provided")
-	}
-
-	err := s.ptr.SetUser(cmd.args[0])
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("login", cmd.args[0], "success!")
-
-=======
 	if len(cmd.args) != 1 {
 		return fmt.Errorf("usage: %s <name>", cmd.name)
 	}
@@ -59,6 +42,5 @@ func handlerLogin(s *state, cmd command) error {
 	}
 
 	fmt.Println("login", cmd.args[0], "success!")
->>>>>>> 5cafcae (CH1-L3: Commands)
 	return nil
 }
