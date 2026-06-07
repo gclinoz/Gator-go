@@ -1,11 +1,14 @@
 package main
 
+import _"github.com/lib/pq"
+
 import (
-	"fmt"
 	"log"
 	"os"
+	"database/sql"
 
 	"github.com/gclinoz/Gator-go/internal/config"
+	"github.com/gclinoz/Gator-go/internal/database"
 )
 
 func main() {
@@ -13,15 +16,21 @@ func main() {
 	if err != nil {
 		log.Fatalf("error reading config: %v", err)
 	}
-	fmt.Printf("Read config: %v\n", cfg)
 
+	db, err := sql.Open("postgres", cfg.DBURL)
+	defer db.Close()
+
+	dbQueries := database.New(db)
 	st := state{
-		cfg: &cfg,
+		cfg:	&cfg,
+		db:		dbQueries,
+		
 	}
 	cmds := commands{
 		utils: make(map[string]func(*state, command) error),
 	}
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegis)
 
 	if len(os.Args) < 2 {
 		log.Fatal("no command provided")
