@@ -87,3 +87,16 @@ func handlerRegis(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerReset(s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		fmt.Println("additional arguments will be ignored")
+	}
+
+	ctx := context.Background()
+	err := s.db.DeleteAllUser(ctx)
+	if err != nil{
+		return err
+	}
+	return nil
+}
