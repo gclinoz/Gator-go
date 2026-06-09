@@ -33,6 +33,7 @@ func main() {
 	cmds.register("register", handlerRegis)
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerListUser)
+	cmds.register("agg", handlerAgg)
 
 	if len(os.Args) < 2 {
 		log.Fatal("no command provided")
