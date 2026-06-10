@@ -12,4 +12,4 @@ CREATE TABLE feeds (
 );
 
 -- +goose Down
-DROP TABLE users;
+DROP TABLE feeds;

@@ -131,3 +131,23 @@ func handlerAddFeed (s *state, cmd command) error {
 	fmt.Println(f)
 	return nil
 }
+
+func handlerListFeed (s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		fmt.Println("additional arguments will be ignored")
+	}
+
+	ctx := context.Background()
+	data, err := s.db.GetAllFeed(ctx)
+	if err != nil {
+		fmt.Errorf("couldn't get feeds information: %w", err)
+	}
+
+	for _, val := range data {
+		fmt.Println("Feed name:", val.Name)
+		fmt.Println("URL:", val.Url)
+		fmt.Println("Created by:", val.User)
+		fmt.Println("---------------------")
+	}
+	return nil
+}
