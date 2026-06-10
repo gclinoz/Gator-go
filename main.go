@@ -36,6 +36,8 @@ func main() {
 	cmds.register("agg", handlerAgg)
 	cmds.register("addfeed", handlerAddFeed)
 	cmds.register("feeds", handlerListFeed)
+	cmds.register("follow", handlerAddFollow)
+	cmds.register("following", handlerListFollow)
 
 	if len(os.Args) < 2 {
 		log.Fatal("no command provided")

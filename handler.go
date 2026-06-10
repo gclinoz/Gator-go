@@ -129,6 +129,20 @@ func handlerAddFeed (s *state, cmd command) error {
 		return fmt.Errorf("couldn't insert feed: %w", err)
 	}
 	fmt.Println(f)
+
+	followParam := database.CreateFeedFollowParams{
+		ID:			uuid.New(),
+		CreatedAt:	time.Now(),
+		UpdatedAt:	time.Now(),
+		UserID:		userInfo.ID,
+		FeedID:		f.ID,
+	}
+
+	_, err = s.db.CreateFeedFollow(ctx, followParam)
+	if err != nil {
+		return fmt.Errorf("couldn't create new feed-follow record: %w", err)
+	}
+
 	return nil
 }
 
@@ -148,6 +162,55 @@ func handlerListFeed (s *state, cmd command) error {
 		fmt.Println("URL:", val.Url)
 		fmt.Println("Created by:", val.User)
 		fmt.Println("---------------------")
+	}
+	return nil
+}
+
+func handlerAddFollow (s *state, cmd command) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("usage: %s <url>", cmd.name)
+	}
+	ctx := context.Background()
+
+	userInfo, err := s.db.GetUser(ctx, s.cfg.Username)
+	if err != nil {
+		return fmt.Errorf("couldn't get user information: %w", err)
+	}
+
+	feedInfo, err := s.db.GetFeed(ctx, cmd.args[0])
+	if err != nil {
+		return fmt.Errorf("couldn't get feed information: %w", err)
+	}
+
+	followParam := database.CreateFeedFollowParams{
+		ID:			uuid.New(),
+		CreatedAt:	time.Now(),
+		UpdatedAt:	time.Now(),
+		UserID:		userInfo.ID,
+		FeedID:		feedInfo.ID,
+	}
+
+	f, err := s.db.CreateFeedFollow(ctx, followParam)
+	if err != nil {
+		return fmt.Errorf("couldn't create new feed-follow record: %w", err)
+	}
+	fmt.Println(f.UserName, "follows", f.FeedName)
+	return nil
+}
+
+func handlerListFollow (s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		fmt.Println("additional arguments will be ignored")
+	}
+
+	ctx := context.Background()
+	data, err := s.db.GetFeedFollowForUser(ctx, s.cfg.Username)
+	if err != nil {
+		fmt.Errorf("couldn't get following information: %w", err)
+	}
+
+	for _, val := range data {
+		fmt.Println(val.FeedName)
 	}
 	return nil
 }
