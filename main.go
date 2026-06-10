@@ -26,6 +26,7 @@ func main() {
 		db:		dbQueries,
 		
 	}
+
 	cmds := commands{
 		utils: make(map[string]func(*state, command) error),
 	}
@@ -34,10 +35,10 @@ func main() {
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerListUser)
 	cmds.register("agg", handlerAgg)
-	cmds.register("addfeed", handlerAddFeed)
+	cmds.register("addfeed", middlewareLoggedIn(handlerAddFeed))
 	cmds.register("feeds", handlerListFeed)
-	cmds.register("follow", handlerAddFollow)
-	cmds.register("following", handlerListFollow)
+	cmds.register("follow", middlewareLoggedIn(handlerAddFollow))
+	cmds.register("following", middlewareLoggedIn(handlerListFollow))
 
 	if len(os.Args) < 2 {
 		log.Fatal("no command provided")

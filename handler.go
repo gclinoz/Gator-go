@@ -104,16 +104,11 @@ func handlerAgg (s *state, cmd command) error {
 	return nil
 }
 
-func handlerAddFeed (s *state, cmd command) error {
+func handlerAddFeed (s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 2 {
 		return fmt.Errorf("usage: %s <name> <url>", cmd.name)
 	}
 	ctx := context.Background()
-
-	userInfo, err := s.db.GetUser(ctx, s.cfg.Username)
-	if err != nil {
-		return fmt.Errorf("can't get user information from database")
-	}
 
 	feedInfo := database.CreateFeedParams{
 		ID:			uuid.New(),
@@ -121,7 +116,7 @@ func handlerAddFeed (s *state, cmd command) error {
 		UpdatedAt:	time.Now(),
 		Name:		cmd.args[0],
 		Url:		cmd.args[1],
-		UserID:		userInfo.ID,
+		UserID:		user.ID,
 	}
 
 	f, err := s.db.CreateFeed(ctx, feedInfo)
@@ -134,7 +129,7 @@ func handlerAddFeed (s *state, cmd command) error {
 		ID:			uuid.New(),
 		CreatedAt:	time.Now(),
 		UpdatedAt:	time.Now(),
-		UserID:		userInfo.ID,
+		UserID:		user.ID,
 		FeedID:		f.ID,
 	}
 
@@ -166,16 +161,11 @@ func handlerListFeed (s *state, cmd command) error {
 	return nil
 }
 
-func handlerAddFollow (s *state, cmd command) error {
+func handlerAddFollow (s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 1 {
 		return fmt.Errorf("usage: %s <url>", cmd.name)
 	}
 	ctx := context.Background()
-
-	userInfo, err := s.db.GetUser(ctx, s.cfg.Username)
-	if err != nil {
-		return fmt.Errorf("couldn't get user information: %w", err)
-	}
 
 	feedInfo, err := s.db.GetFeed(ctx, cmd.args[0])
 	if err != nil {
@@ -186,7 +176,7 @@ func handlerAddFollow (s *state, cmd command) error {
 		ID:			uuid.New(),
 		CreatedAt:	time.Now(),
 		UpdatedAt:	time.Now(),
-		UserID:		userInfo.ID,
+		UserID:		user.ID,
 		FeedID:		feedInfo.ID,
 	}
 
@@ -198,13 +188,13 @@ func handlerAddFollow (s *state, cmd command) error {
 	return nil
 }
 
-func handlerListFollow (s *state, cmd command) error {
+func handlerListFollow (s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 0 {
 		fmt.Println("additional arguments will be ignored")
 	}
 
 	ctx := context.Background()
-	data, err := s.db.GetFeedFollowForUser(ctx, s.cfg.Username)
+	data, err := s.db.GetFeedFollowForUser(ctx, user.Name)
 	if err != nil {
 		fmt.Errorf("couldn't get following information: %w", err)
 	}
