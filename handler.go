@@ -16,7 +16,7 @@ func handlerLogin(s *state, cmd command) error {
 
 	ctx := context.Background()
 	_, err := s.db.GetUser(ctx, cmd.args[0])
-	if err != nil{
+	if err != nil {
 		return fmt.Errorf("can't login to an account that doesn't exist!")
 	}
 
@@ -101,5 +101,33 @@ func handlerAgg (s *state, cmd command) error {
 		return fmt.Errorf("couldn't fetch feed: %w", err)
 	}
 	fmt.Println(parsed)
+	return nil
+}
+
+func handlerAddFeed (s *state, cmd command) error {
+	if len(cmd.args) != 2 {
+		return fmt.Errorf("usage: %s <name> <url>", cmd.name)
+	}
+	ctx := context.Background()
+
+	userInfo, err := s.db.GetUser(ctx, s.cfg.Username)
+	if err != nil {
+		return fmt.Errorf("can't get user information from database")
+	}
+
+	feedInfo := database.CreateFeedParams{
+		ID:			uuid.New(),
+		CreatedAt:	time.Now(),
+		UpdatedAt:	time.Now(),
+		Name:		cmd.args[0],
+		Url:		cmd.args[1],
+		UserID:		userInfo.ID,
+	}
+
+	f, err := s.db.CreateFeed(ctx, feedInfo)
+	if err != nil {
+		return fmt.Errorf("couldn't insert feed: %w", err)
+	}
+	fmt.Println(f)
 	return nil
 }
