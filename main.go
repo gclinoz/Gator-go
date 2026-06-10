@@ -39,6 +39,7 @@ func main() {
 	cmds.register("feeds", handlerListFeed)
 	cmds.register("follow", middlewareLoggedIn(handlerAddFollow))
 	cmds.register("following", middlewareLoggedIn(handlerListFollow))
+	cmds.register("unfollow", middlewareLoggedIn(handlerDelFollow))
 
 	if len(os.Args) < 2 {
 		log.Fatal("no command provided")

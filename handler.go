@@ -204,3 +204,25 @@ func handlerListFollow (s *state, cmd command, user database.User) error {
 	}
 	return nil
 }
+
+func handlerDelFollow (s *state, cmd command, user database.User) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("usage: %s <url>", cmd.name)
+	}
+	ctx := context.Background()
+
+	feedInfo, err := s.db.GetFeed(ctx, cmd.args[0])
+	if err != nil {
+		return fmt.Errorf("couldn't get feed information: %w", err)
+	}
+
+	delParam := database.DeleteFeedForUserParams{
+		UserID:	user.ID,
+		FeedID: feedInfo.ID,
+	}
+	err = s.db.DeleteFeedForUser(ctx, delParam)
+	if err != nil {
+		return fmt.Errorf("couldn't remove feed follow: %w", err)
+	}
+	return nil
+}
