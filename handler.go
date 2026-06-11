@@ -249,7 +249,11 @@ func handlerPost (s *state, cmd command) error {
 	}
 
 	ctx := context.Background()
-	p, err := s.db.GetPostForUser(ctx, int32(limit))
+	getParam := database.GetPostForUserParams{
+		Name:	s.cfg.Username,
+		Limit:	int32(limit),
+	}
+	p, err := s.db.GetPostForUser(ctx, getParam)
 	if err != nil {
 		return fmt.Errorf("couldn't get posts: %w", err)
 	}
