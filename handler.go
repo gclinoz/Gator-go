@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"time"
+	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/gclinoz/Gator-go/internal/database"
@@ -232,6 +233,29 @@ func handlerDelFollow (s *state, cmd command, user database.User) error {
 	err = s.db.DeleteFeedForUser(ctx, delParam)
 	if err != nil {
 		return fmt.Errorf("couldn't remove feed follow: %w", err)
+	}
+	return nil
+}
+
+func handlerPost (s *state, cmd command) error {
+	limit := 2
+
+	if len(cmd.args) > 0 {
+		parsedLimit, err := strconv.Atoi(cmd.args[0])
+		if err != nil {
+			return fmt.Errorf("invalid limit: %w", err)
+		}
+		limit = parsedLimit
+	}
+
+	ctx := context.Background()
+	p, err := s.db.GetPostForUser(ctx, int32(limit))
+	if err != nil {
+		return fmt.Errorf("couldn't get posts: %w", err)
+	}
+
+	for _, val := range p {
+		fmt.Println(val)
 	}
 	return nil
 }

@@ -9,6 +9,10 @@ import (
 	"io"
 	"html"
 	"log"
+	"database/sql"
+
+	"github.com/google/uuid"
+	"github.com/gclinoz/Gator-go/internal/database"
 )
 
 type RSSFeed struct {
@@ -84,11 +88,26 @@ func scrapeFeeds(s *state) {
 		log.Printf("couldn't collect feed %s: %v", nextFeed.Name, err)
 	}
 
-	for i, val := range data.Channel.Item {
-		if i > 10 {
-			break
+	for _, val := range data.Channel.Item {
+		parsed, err := time.Parse(time.RFC1123Z, val.PubDate)
+		if err != nil {
+			parsed = time.Time{}
 		}
-		fmt.Println("Found post:", val.Title)
+
+		postParam := database.CreatePostParams{
+			ID:				uuid.New(),
+			CreatedAt:		time.Now(),
+			UpdatedAt:		time.Now(),
+			Title:			sql.NullString{String: val.Title, Valid: true},
+			Url:			val.Link,
+			Description:	sql.NullString{String: val.Description, Valid: true},
+			PublishedAt:	sql.NullTime{Time: parsed, Valid: true},
+			FeedID:			nextFeed.ID,
+		}
+		_, err = s.db.CreatePost(ctx, postParam)
+		if err != nil {
+			log.Printf("couldn't insert posts from %s: %v", nextFeed.Name, err)
+		}
 	}
-	fmt.Printf("Feed %s collected, %v posts found\n", nextFeed.Name, len(data.Channel.Item))
+	fmt.Printf("Feed %s collected, %v posts stored\n", nextFeed.Name, len(data.Channel.Item))
 }
