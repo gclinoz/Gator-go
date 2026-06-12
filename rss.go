@@ -89,9 +89,10 @@ func scrapeFeeds(s *state) {
 	}
 
 	for _, val := range data.Channel.Item {
-		parsed, err := time.Parse(time.RFC1123Z, val.PubDate)
-		if err != nil {
-			parsed = time.Time{}
+		parsed := sql.NullTime{}
+		t, err := time.Parse(time.RFC1123Z, val.PubDate)
+		if err == nil {
+			parsed = sql.NullTime{Time: t, Valid: true}
 		}
 
 		postParam := database.CreatePostParams{
@@ -101,7 +102,7 @@ func scrapeFeeds(s *state) {
 			Title:			sql.NullString{String: val.Title, Valid: true},
 			Url:			val.Link,
 			Description:	sql.NullString{String: val.Description, Valid: true},
-			PublishedAt:	sql.NullTime{Time: parsed, Valid: true},
+			PublishedAt:	parsed,
 			FeedID:			nextFeed.ID,
 		}
 		_, err = s.db.CreatePost(ctx, postParam)

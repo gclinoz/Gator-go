@@ -1,7 +1,5 @@
 package main
 
-import _"github.com/lib/pq"
-
 import (
 	"log"
 	"os"
@@ -9,6 +7,8 @@ import (
 
 	"github.com/gclinoz/Gator-go/internal/config"
 	"github.com/gclinoz/Gator-go/internal/database"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -40,7 +40,7 @@ func main() {
 	cmds.register("follow", middlewareLoggedIn(handlerAddFollow))
 	cmds.register("following", middlewareLoggedIn(handlerListFollow))
 	cmds.register("unfollow", middlewareLoggedIn(handlerDelFollow))
-	cmds.register("browse", handlerPost)
+	cmds.register("browse", middlewareLoggedIn(handlerPost))
 
 	if len(os.Args) < 2 {
 		log.Fatal("no command provided")

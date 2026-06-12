@@ -237,7 +237,7 @@ func handlerDelFollow (s *state, cmd command, user database.User) error {
 	return nil
 }
 
-func handlerPost (s *state, cmd command) error {
+func handlerPost (s *state, cmd command, user database.User) error {
 	limit := 2
 
 	if len(cmd.args) > 0 {
@@ -250,7 +250,7 @@ func handlerPost (s *state, cmd command) error {
 
 	ctx := context.Background()
 	getParam := database.GetPostForUserParams{
-		Name:	s.cfg.Username,
+		Name:	user.Name,
 		Limit:	int32(limit),
 	}
 	p, err := s.db.GetPostForUser(ctx, getParam)
